@@ -1,0 +1,60 @@
+Florida GIS Data Search Tool — How It Works
+============================================
+
+Setup
+-----
+  pip install -r requirements.txt
+  export ANTHROPIC_API_KEY=sk-ant-...
+
+Usage
+-----
+  python main.py                                      # interactive county picker
+  python main.py --counties Orange                    # single county
+  python main.py --counties "Orange,Hillsborough,Pinellas"
+  python main.py --counties Orange --no-download      # list only
+  python main.py --counties Orange --output-dir ./data
+
+
+How It Works
+------------
+
+gis_search/agent.py — Two-phase Claude agent using claude-opus-4-6 with
+adaptive thinking:
+
+  Phase 1 (web search):
+    Claude uses the web_search_20260209 and web_fetch_20260209 server-side
+    tools to search county GIS portals, ArcGIS Hub, the Florida Geographic
+    Data Library (FGDL), county property appraisers, and water management
+    districts. Handles pause_turn (server tool loop limit) automatically
+    with up to 6 continuations.
+
+  Phase 2 (structured parse):
+    Feeds the free-form research into a second Claude call with
+    output_config.format (JSON schema) to extract a clean, typed list of
+    GISDataset objects.
+
+gis_search/downloader.py — Smart download manager that handles:
+  - Direct file downloads (ZIP shapefiles, GeoJSON, KMZ, CSV) with tqdm
+    progress bars
+  - ArcGIS REST FeatureServer/MapServer exports (constructs
+    /query?where=1=1&f=geojson)
+  - WFS GetFeature requests
+  - Portal-only URLs (prints link for manual retrieval)
+
+gis_search/cli.py — Interactive UI with questionary multi-select
+  (numbered-list fallback if questionary is not installed). Results are
+  grouped by county, then by category in priority order:
+    1. Parcels
+    2. Boundaries
+    3. Water Utilities
+    4. Wastewater Utilities
+    5. Reclaimed Water
+    6. Utilities (General)
+    7. Other
+
+gis_search/models.py — GISDataset dataclass with category and format labels.
+
+gis_search/counties.py — All 67 Florida county names with validation helpers.
+
+main.py — argparse entry point exposing --counties, --output-dir, and
+  --no-download flags.
