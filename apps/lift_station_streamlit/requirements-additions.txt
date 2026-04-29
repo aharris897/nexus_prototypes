@@ -1,0 +1,8 @@
+# Additions to repo-root requirements.txt for the lift station Streamlit
+# QA/QC app. These are ON TOP of the calc engine's own requirements
+# (numpy, scipy, openpyxl, reportlab).
+#
+# When merging, append these to the existing requirements.txt.
+
+streamlit>=1.30
+plotly>=5.18

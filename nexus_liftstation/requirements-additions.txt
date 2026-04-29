@@ -1,0 +1,8 @@
+# Additions to repo-root requirements.txt for the nexus_liftstation module.
+# When merging, append these to the existing requirements.txt rather than
+# replacing it.
+
+numpy>=1.24
+scipy>=1.11
+openpyxl>=3.1
+reportlab>=4.0
